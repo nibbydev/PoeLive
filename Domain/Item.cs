@@ -21,7 +21,6 @@ namespace Domain {
         public Stat[] Stats { get; set; }
         public Influence? Influence { get; set; }
 
-
         public override string ToString() {
             var stringBuilder = new StringBuilder();
 
@@ -78,96 +77,6 @@ namespace Domain {
             }
 
             return stringBuilder.ToString();
-        }
-    }
-
-    public class Socket {
-        public SocketColor? Color { get; set; }
-        public bool Linked { get; set; }
-
-        public override string ToString() {
-            return $"[{Color} {Linked}]";
-        }
-    }
-    
-    public enum Influence {
-        Shaper,
-        Elder
-    }
-
-    public enum SocketColor {
-        Red,
-        Green,
-        Blue,
-        White,
-        Abyss
-    }
-
-    public enum RequirementType {
-        Level,
-        ItemLevel,
-        MaxSocket,
-        Int,
-        Str,
-        Dex
-    }
-
-    public class Requirement {
-        public RequirementType? Type { get; set; }
-        public int? Value { get; set; }
-
-        public override string ToString() {
-            return $"[{Type} {Value}]";
-        }
-    }
-
-    public class Mod {
-        public string Name { get; set; }
-        public double? Value { get; set; }
-        public string TierShort { get; set; }
-        public string TierLong { get; set; }
-
-        public override string ToString() {
-            var stringBuilder = new StringBuilder("[");
-
-            if (Value > 0) {
-                stringBuilder.Append(Value);
-                stringBuilder.Append(" ");
-            }
-
-            stringBuilder.Append(Name);
-
-            if (TierShort != null) stringBuilder.Append(" " + TierShort);
-            if (TierLong != null) stringBuilder.Append(" " + TierLong);
-
-            stringBuilder.Append("]");
-
-            return stringBuilder.ToString();
-        }
-    }
-
-    public enum StatType {
-        Quality,
-        Phys,
-        Elem,
-        Aps,
-        Dps,
-        PDps,
-        EDps,
-        Armour,
-        Evasion,
-        Shield,
-        Block,
-        Crit,
-        Level
-    }
-
-    public class Stat {
-        public StatType Type { get; set; }
-        public double? Value { get; set; }
-
-        public override string ToString() {
-            return $"[{Type} {Value}]";
         }
     }
 }
