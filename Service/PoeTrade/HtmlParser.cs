@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -7,7 +6,7 @@ using CsQuery;
 using CsQuery.ExtensionMethods.Internal;
 using Domain;
 
-namespace PoeLive {
+namespace Service.PoeTrade {
     public static class HtmlParser {
         private static readonly Regex IntRegex = new Regex(@"\d+");
 

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CsQuery.Core" Version="2.0.1" />
+      <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
+    </ItemGroup>
+
+</Project>

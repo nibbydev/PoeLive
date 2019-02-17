@@ -2,6 +2,8 @@ using System.Text;
 
 namespace Domain {
     public class Item {
+        public string Uniq { get; set; }
+        
         public string Seller { get; set; }
         public string Buyout { get; set; }
         public string Ign { get; set; }

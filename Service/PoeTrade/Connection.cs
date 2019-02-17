@@ -7,10 +7,11 @@ using CsQuery.ExtensionMethods;
 using Domain;
 using WebSocketSharp;
 
-namespace PoeLive {
+namespace Service.PoeTrade {
     public class Connection {
         private static readonly HttpClient WebClient = new HttpClient();
-        private static Action<string> RemoveActive => null;
+        public static Action<string> RemoveActive { private get; set; }
+        public static Action<Item[]> DispatchItem { private get; set; }
 
         private const string VersionString = "{\"type\": \"version\", \"value\": 3}";
         private const string UserAgent = "Mozilla/5.0 (SMART-FRIDGE; TempleOS; Tizen 2.3) AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.0 Fridge Safari/538.1";
@@ -32,6 +33,12 @@ namespace PoeLive {
             
             // Get initial id state
             _lastId = PostAsync(-1, _search).Result.ParseJSON<ApiDeserializer>().NewId;
+            
+            PrintSearch(ConsoleColor.Magenta);
+            Console.Write("Got initial id: ");
+            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+            Console.WriteLine(_lastId);
+            Console.ResetColor();
             
             CreateSocket();
         }
@@ -146,18 +153,14 @@ namespace PoeLive {
             }
             
             // Parse item data
-            try {
-                var items = HtmlParser.ParsePoeTrade(data.Data);
-                foreach (var item in items) {
-                    Console.WriteLine(item);
-                }
-            } catch (Exception e) {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ResetColor();
-                
-                Console.WriteLine(data.Data);
+            var items = HtmlParser.ParsePoeTrade(data.Data);
+
+            // Give each item its uniq
+            for (var i = 0; i < data.Count; i++) {
+                items[i].Uniq = data.Uniqs[i];
             }
+            
+            DispatchItem?.Invoke(items);
         }
 
         private void DispatchDelete(string value) {
@@ -175,11 +178,11 @@ namespace PoeLive {
         
         
         private void SocketOnMessage(object sender, MessageEventArgs e) {
-            PrintSearch();
+            /*PrintSearch();
             Console.Write("Got WS: ");
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine(e.Data);
-            Console.ResetColor();
+            Console.ResetColor();*/
 
             // Reply was just the id
             if (int.TryParse(e.Data, out var id)) {
