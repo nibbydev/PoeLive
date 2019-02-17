@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CsQuery;
 using CsQuery.ExtensionMethods.Internal;
-using Domain;
+using Domain.PoeTrade;
 
 namespace Service.PoeTrade {
     public static class HtmlParser {
@@ -106,29 +106,29 @@ namespace Service.PoeTrade {
             return sockets.IsNullOrEmpty() ? null : sockets.ToArray();
         }
 
-        private static SocketColor? ExtractSocketColor(IDomObject domObject) {
+        private static Socket.SocketColor? ExtractSocketColor(IDomObject domObject) {
             /*
                  <div class="socket socketS socketRight"></div>
              */
 
             if (domObject.HasClass("socketD")) {
-                return SocketColor.Green;
+                return Socket.SocketColor.Green;
             }
 
             if (domObject.HasClass("socketS")) {
-                return SocketColor.Red;
+                return Socket.SocketColor.Red;
             }
 
             if (domObject.HasClass("socketI")) {
-                return SocketColor.Blue;
+                return Socket.SocketColor.Blue;
             }
             
             if (domObject.HasClass("socketG")) {
-                return SocketColor.White;
+                return Socket.SocketColor.White;
             }
             
             if (domObject.HasClass("socketA")) {
-                return SocketColor.Abyss;
+                return Socket.SocketColor.Abyss;
             }
 
             return null;
@@ -180,17 +180,17 @@ namespace Service.PoeTrade {
                 requirements.Add(requirement);
 
                 if (domChild.InnerHTML.Contains("Level")) {
-                    requirement.Type = RequirementType.Level;
+                    requirement.Type = Requirement.RequirementType.Level;
                 } else if (domChild.InnerHTML.Contains("Intelligence")) {
-                    requirement.Type = RequirementType.Int;
+                    requirement.Type = Requirement.RequirementType.Int;
                 } else if (domChild.InnerHTML.Contains("Strength")) {
-                    requirement.Type = RequirementType.Str;
+                    requirement.Type = Requirement.RequirementType.Str;
                 } else if (domChild.InnerHTML.Contains("Dexterity")) {
-                    requirement.Type = RequirementType.Dex;
+                    requirement.Type = Requirement.RequirementType.Dex;
                 } else if (domChild.InnerHTML.Contains("ilvl")) {
-                    requirement.Type = RequirementType.ItemLevel;
+                    requirement.Type = Requirement.RequirementType.ItemLevel;
                 } else if (domChild.InnerHTML.Contains("Max sockets")) {
-                    requirement.Type = RequirementType.MaxSocket;
+                    requirement.Type = Requirement.RequirementType.MaxSocket;
                 }
 
                 var match = IntRegex.Match(domChild.InnerHTML);
@@ -279,44 +279,44 @@ namespace Service.PoeTrade {
 
                     switch (cq.Attr("data-name")) {
                         case "q":
-                            stat.Type = StatType.Quality;
+                            stat.Type = Stat.StatType.Quality;
                             break;
                         case "quality_pd":
-                            stat.Type = StatType.Phys;
+                            stat.Type = Stat.StatType.Phys;
                             break;
                         case "ed":
-                            stat.Type = StatType.Elem;
+                            stat.Type = Stat.StatType.Elem;
                             break;
                         case "aps":
-                            stat.Type = StatType.Aps;
+                            stat.Type = Stat.StatType.Aps;
                             break;
                         case "quality_dps":
-                            stat.Type = StatType.Dps;
+                            stat.Type = Stat.StatType.Dps;
                             break;
                         case "quality_pdps":
-                            stat.Type = StatType.PDps;
+                            stat.Type = Stat.StatType.PDps;
                             break;
                         case "edps":
-                            stat.Type = StatType.EDps;
+                            stat.Type = Stat.StatType.EDps;
                             break;
 
                         case "quality_armour":
-                            stat.Type = StatType.Armour;
+                            stat.Type = Stat.StatType.Armour;
                             break;
                         case "quality_evasion":
-                            stat.Type = StatType.Evasion;
+                            stat.Type = Stat.StatType.Evasion;
                             break;
                         case "quality_shield":
-                            stat.Type = StatType.Shield;
+                            stat.Type = Stat.StatType.Shield;
                             break;
                         case "block":
-                            stat.Type = StatType.Block;
+                            stat.Type = Stat.StatType.Block;
                             break;
                         case "crit":
-                            stat.Type = StatType.Crit;
+                            stat.Type = Stat.StatType.Crit;
                             break;
                         case "level":
-                            stat.Type = StatType.Level;
+                            stat.Type = Stat.StatType.Level;
                             break;
                     }
 

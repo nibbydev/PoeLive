@@ -1,5 +1,13 @@
-namespace Domain {
+namespace Domain.PoeTrade {
     public class Socket {
+        public enum SocketColor {
+            Red,
+            Green,
+            Blue,
+            White,
+            Abyss
+        }
+        
         public SocketColor? Color { get; set; }
         public bool Linked { get; set; }
 

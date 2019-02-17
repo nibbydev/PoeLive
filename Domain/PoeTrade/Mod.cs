@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Domain {
+namespace Domain.PoeTrade {
     public class Mod {
         public string Name { get; set; }
         public double? Value { get; set; }

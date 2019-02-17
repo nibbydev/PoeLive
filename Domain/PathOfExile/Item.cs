@@ -1,6 +1,7 @@
 using System.Text;
+using Domain.PoeTrade;
 
-namespace Domain.PoeTrade {
+namespace Domain.PathOfExile {
     public class Item {
         public string Uniq { get; set; }
         

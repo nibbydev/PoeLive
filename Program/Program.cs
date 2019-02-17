@@ -5,14 +5,18 @@ using Domain;
 namespace Program {
     public static class Program {
         static Program() {
-            Service.PoeTrade.Connection.DispatchItem = DispatchItem;
-            Service.PoeTrade.Connection.RemoveActive = RemoveActive;
+            BaseConnection.DispatchItem = DispatchItem;
+            BaseConnection.RemoveActive = RemoveActive;
+            BaseConnection.PoeSessionId = "";
         }
 
         private static void Main(string[] args = null) {
             var urls = new[] {
-                "osikarikinoami",
-                "urinotamotasan"
+                "osikarikinoami"
+            };
+            
+            var urls2 = new[] {
+                "NV6ofp"
             };
 
             // Append CLI input
@@ -22,9 +26,11 @@ namespace Program {
 
             try {
                 Service.PoeTrade.Controller.Run(urls);
+                Service.PathOfExile.Controller.Run(urls2);
                 Console.ReadKey(true);
             } finally {
                 Service.PoeTrade.Controller.Stop();
+                Service.PathOfExile.Controller.Stop();
             }
         }
 
