@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
@@ -12,34 +13,41 @@ using Item = Domain.PoeTrade.Item;
 
 namespace Service.PoeTrade {
     public sealed class Connection : BaseConnection {
+        public static readonly Regex UrlRegex = new Regex(@"^https?:\/\/poe\.trade\/search\/([a-zA-Z]+)\/?$");
         private int _lastId;
 
-        public Connection(string search) : base(search) {
-            SearchUrl = search;
-            WsUrl = BuildWebSocketUrl(search);
-            
+        public Connection(string url) : base(ConnectionType.PoeTrade, url) {
+            WsUrl = BuildWebSocketUrl(url);
+
             // Get initial id state
             _lastId = AsyncRequest("-1").Result.ParseJSON<ApiDeserializer>().NewId;
             PrintColorMsg(ConsoleColor.Magenta, "Initial id", _lastId.ToString());
 
             CreateSocket();
         }
-        
-        public override void SocketOnOpen(object sender, EventArgs e) {
-            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket connected");
-            WebSocket?.Send("{\"type\": \"version\", \"value\": 3}");
+
+        public override string BuildWebSocketUrl(string url) {
+            // http://poe.trade/search/omisokonausiha
+            var match = UrlRegex.Match(url);
+
+            if (!match.Success || match.Groups.Count != 2) {
+                throw new ArgumentException("Could not parse url");
+            }
+
+            Identifier = match.Groups[1].Value;
+            return $"ws://live.poe.trade/{Identifier}";
         }
 
-        private string BuildWebSocketUrl(string data = null) {
-            Identifier = data;
-            return $"ws://live.poe.trade/{Identifier}";
+        protected override void SocketOnOpen(object sender, EventArgs e) {
+            base.SocketOnOpen(sender, e);
+            WebSocket?.Send("{\"type\": \"version\", \"value\": 3}");
         }
 
         public override async void DispatchSearchAsync(string[] ids = null) {
             if (ids != null) {
                 throw new ArgumentException();
             }
-            
+
             PrintColorMsg(ConsoleColor.Blue, "Notify", _lastId.ToString());
 
             // Make POST request
@@ -66,15 +74,19 @@ namespace Service.PoeTrade {
             for (var i = 0; i < data.Count; i++) {
                 items[i].Uniq = data.Uniqs[i];
             }
-            
+
+            items.ForEach(t => PrintColorMsg(ConsoleColor.Red, "item", $"{t.Ign} -> '{t.Buyout}'"));
+
             // todo: convert to domain object
+            /*
             var domainItems = new Domain.Item[items.Length];
             DispatchItem?.Invoke(domainItems);
 
             throw new NotImplementedException();
+            */
         }
 
-        public override void SocketOnMessage(object sender, MessageEventArgs e) {
+        protected override void SocketOnMessage(object sender, MessageEventArgs e) {
             // Reply was just the id
             if (int.TryParse(e.Data, out var id)) {
                 _lastId = id;

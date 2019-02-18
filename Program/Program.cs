@@ -12,34 +12,39 @@ namespace Program {
 
         private static void Main(string[] args = null) {
             var urls = new[] {
-                "osikarikinoami"
-            };
-            
-            var urls2 = new[] {
-                "NV6ofp"
+                "http://poe.trade/search/osikarikinoami",
+                "https://www.pathofexile.com/trade/search/Betrayal/NV6ofp",
+                "test"
             };
 
             // Append CLI input
-            if (args != null && args.Length > 0) {
-                urls.AddRange(args);
+            urls.AddRange(args);
+
+            // Add connection urls
+            foreach (var url in urls) {
+                try {
+                    Service.Controller.AddConnection(url);
+                } catch (Exception e) {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine(e.Message);
+                    Console.ResetColor();
+                }
             }
 
             try {
-                Service.PoeTrade.Controller.Run(urls);
-                Service.PathOfExile.Controller.Run(urls2);
+                Service.Controller.Run();
                 Console.ReadKey(true);
             } finally {
-                Service.PoeTrade.Controller.Stop();
-                Service.PathOfExile.Controller.Stop();
+                Service.Controller.Stop();
             }
         }
 
         private static void DispatchItem(Item[] items) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         private static void RemoveActive(string uniq) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

@@ -1,36 +1,38 @@
 using System;
 using System.Linq;
-using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
 using Domain;
 using Domain.PathOfExile;
 using WebSocketSharp;
-using WebSocketSharp.Net;
 
 namespace Service.PathOfExile {
-    public class Connection : BaseConnection {
+    public sealed class Connection : BaseConnection {
+        public static readonly Regex UrlRegex =
+            new Regex(@"^https?:\/\/www\.pathofexile\.com\/trade\/search\/([a-zA-Z0-9]+)\/([a-zA-Z0-9]+)$");
+
         private string _league;
 
-        public Connection(string search) : base(search) {
-            SearchUrl = search;
-            WsUrl = BuildWebSocketUrl(SearchUrl);
-
+        public Connection(string url) : base(ConnectionType.PathOfExile, url) {
+            WsUrl = BuildWebSocketUrl(url);
             CreateSocket();
         }
 
-        private string BuildWebSocketUrl(string data = null) {
-            //throw new NotImplementedException();
+        public override string BuildWebSocketUrl(string url) {
+            // https://www.pathofexile.com/trade/search/Betrayal/xX7kHP
+            var match = UrlRegex.Match(url);
 
-            // todo this
+            if (!match.Success || match.Groups.Count != 3) {
+                throw new ArgumentException("Could not parse url");
+            }
 
-            _league = "Betrayal";
-            Identifier = data;
+            _league = match.Groups[1].Value;
+            Identifier = match.Groups[2].Value;
 
             return $"wss://www.pathofexile.com/api/trade/live/{_league}/{Identifier}";
         }
-
 
         public override async void DispatchSearchAsync(string[] ids = null) {
             if (ids == null) {
@@ -47,15 +49,20 @@ namespace Service.PathOfExile {
                 var jsonString = await AsyncRequest(concatIds);
                 var data = jsonString?.ParseJSON<ApiDeserializer>();
 
+                data?.result.ForEach(t => PrintColorMsg(ConsoleColor.Red, "item",
+                    $"{t.listing.account?.lastCharacterName} -> '{t.listing.price?.amount} {t.listing.price?.currency}'"));
+
                 // todo: convert to domain object
+                /*
                 var domainItems = new Domain.Item[data?.result.Length ?? 0];
                 DispatchItem?.Invoke(domainItems);
 
                 throw new NotImplementedException();
+                */
             }
         }
 
-        public override void SocketOnMessage(object sender, MessageEventArgs e) {
+        protected override void SocketOnMessage(object sender, MessageEventArgs e) {
             var msg = e.Data.ParseJSON<WsDeserializer>();
 
             if (!msg.@new.IsNullOrEmpty()) {

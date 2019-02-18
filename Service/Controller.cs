@@ -1,37 +1,44 @@
 using System;
 using System.Collections.Generic;
-using CsQuery.ExtensionMethods.Internal;
-using Service.PoeTrade;
-using Service.PathOfExile;
+using Domain;
+
 
 namespace Service {
     public static class Controller {
-        private static readonly List<PoeTrade.Connection> Connections = new List<PoeTrade.Connection>();
-        private static bool _isRunning;
-        
-        public static void Run(string[] urls) {
-            if (urls.IsNullOrEmpty()) {
-                throw new Exception("Invalid url list");
+        private static readonly List<BaseConnection> Connections = new List<BaseConnection>();
+
+        public static void AddConnection(string url) {
+            if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url)) {
+                throw new ArgumentException("Null/empty url");
             }
 
-            if (_isRunning) {
-                throw new Exception("Already running");
-            }
-
-            foreach (var url in urls) {
+            if (PoeTrade.Connection.UrlRegex.IsMatch(url)) {
                 Connections.Add(new PoeTrade.Connection(url));
+                return;
             }
-            
-            _isRunning = true;
+
+            if (PathOfExile.Connection.UrlRegex.IsMatch(url)) {
+                Connections.Add(new PathOfExile.Connection(url));
+                return;
+            }
+
+            if (url.Contains("poe.app")) {
+                throw new NotImplementedException();
+            }
+
+            throw new ArgumentException($"Could not parse url '{url}'");
+        }
+
+
+        public static void Run() {
+            foreach (var connection in Connections) {
+                connection.Connect();
+            }
         }
 
         public static void Stop() {
-            if (!_isRunning) {
-                throw new Exception("Not running");
-            }
-            
             foreach (var connection in Connections) {
-                connection.DeleteSocket();
+                connection.Disconnect();
             }
 
             var allDone = false;
@@ -41,12 +48,10 @@ namespace Service {
                         allDone = false;
                         break;
                     }
-                        
+
                     allDone = true;
                 }
             }
-
-            _isRunning = false;
         }
     }
 }
