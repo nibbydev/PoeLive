@@ -23,11 +23,7 @@ namespace Service {
                 return;
             }
 
-            if (url.Contains("poe.app")) {
-                throw new NotImplementedException();
-            }
-
-            throw new ArgumentException($"Could not parse url '{url}'");
+            throw new ArgumentException($"Invalid url '{url}'");
         }
 
 
