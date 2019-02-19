@@ -1,21 +1,15 @@
 using System;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Domain;
 using WebSocketSharp;
 using WebSocketSharp.Net;
 
-namespace Domain {
+namespace Service.Connection {
     public abstract class BaseConnection {
-        protected enum ConnectionType {
-            PoeTrade,
-            PathOfExile,
-            PoeApp
-        }
-
         protected static readonly HttpClient WebClient = new HttpClient();
-        public static Action<string> RemoveActive { protected get; set; }
-        public static Action<Item[]> DispatchItem { protected get; set; }
+        public static Action<string> DispatchDelItem { protected get; set; }
+        public static Action<Item> DispatchNewItem { protected get; set; }
 
         protected WebSocket WebSocket;
         protected string WsUrl, Identifier;
@@ -122,10 +116,6 @@ namespace Domain {
             throw new NotImplementedException();
         }
 
-
-        protected static void DispatchDelete(string value) {
-            RemoveActive?.Invoke(value);
-        }
 
         protected void PrintColorMsg(ConsoleColor color, string a, string b = null) {
             if (string.IsNullOrEmpty(Identifier) || string.IsNullOrEmpty(a)) {

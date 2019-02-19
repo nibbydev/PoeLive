@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Domain.PoeTrade {
+namespace Domain.PoeTrade.ApiDeserializer {
     public class Mod {
         public string Name { get; set; }
         public double? Value { get; set; }

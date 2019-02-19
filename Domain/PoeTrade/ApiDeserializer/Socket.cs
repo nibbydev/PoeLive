@@ -1,4 +1,4 @@
-namespace Domain.PoeTrade {
+namespace Domain.PoeTrade.ApiDeserializer {
     public class Socket {
         public enum SocketColor {
             Red,
@@ -7,7 +7,7 @@ namespace Domain.PoeTrade {
             White,
             Abyss
         }
-        
+
         public SocketColor? Color { get; set; }
         public bool Linked { get; set; }
 

@@ -1,4 +1,4 @@
-namespace Domain.PoeTrade {
+namespace Domain.PoeTrade.ApiDeserializer {
     public class Requirement {
         public enum RequirementType {
             Level,
@@ -8,7 +8,7 @@ namespace Domain.PoeTrade {
             Str,
             Dex
         }
-        
+
         public RequirementType? Type { get; set; }
         public int? Value { get; set; }
 

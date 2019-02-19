@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Domain;
+using Service.Connection;
 
 
 namespace Service {
@@ -12,13 +13,13 @@ namespace Service {
                 throw new ArgumentException("Null/empty url");
             }
 
-            if (PoeTrade.Connection.UrlRegex.IsMatch(url)) {
-                Connections.Add(new PoeTrade.Connection(url));
+            if (PtConnection.UrlRegex.IsMatch(url)) {
+                Connections.Add(new PtConnection(url));
                 return;
             }
 
-            if (PathOfExile.Connection.UrlRegex.IsMatch(url)) {
-                Connections.Add(new PathOfExile.Connection(url));
+            if (PoeConnection.UrlRegex.IsMatch(url)) {
+                Connections.Add(new PoeConnection(url));
                 return;
             }
 

@@ -1,9 +1,9 @@
 using System.Text;
 
-namespace Domain.PoeTrade {
+namespace Domain.PoeTrade.ApiDeserializer {
     public class Item {
         public string Uniq { get; set; }
-        
+
         public string Seller { get; set; }
         public string Buyout { get; set; }
         public string Ign { get; set; }
@@ -39,7 +39,7 @@ namespace Domain.PoeTrade {
             if (StackSize != null) {
                 stringBuilder.Append($" - StackSize: {StackSize}\n");
             }
-            
+
             if (Influence != null) {
                 stringBuilder.Append($" - Influence: {Influence}\n");
             }

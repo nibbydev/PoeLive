@@ -1,4 +1,4 @@
-namespace Domain.PoeTrade {
+namespace Domain.PoeTrade.ApiDeserializer {
     public class Stat {
         public enum StatType {
             Quality,
@@ -15,7 +15,7 @@ namespace Domain.PoeTrade {
             Crit,
             Level
         }
-        
+
         public StatType Type { get; set; }
         public double? Value { get; set; }
 

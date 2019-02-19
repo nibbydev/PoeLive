@@ -1,22 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
-using Domain;
 using Domain.PoeTrade;
+using Domain.PoeTrade.ApiDeserializer;
 using WebSocketSharp;
-using Item = Domain.PoeTrade.Item;
 
-namespace Service.PoeTrade {
-    public sealed class Connection : BaseConnection {
+namespace Service.Connection {
+    public sealed class PtConnection : BaseConnection {
         public static readonly Regex UrlRegex = new Regex(@"^https?:\/\/poe\.trade\/search\/([a-zA-Z]+)\/?$");
         private int _lastId;
 
-        public Connection(string url) : base(ConnectionType.PoeTrade, url) {
+        public PtConnection(string url) : base(ConnectionType.PoeTrade, url) {
             WsUrl = BuildWebSocketUrl(url);
 
             // Get initial id state
@@ -74,16 +71,8 @@ namespace Service.PoeTrade {
             for (var i = 0; i < data.Count; i++) {
                 items[i].Uniq = data.Uniqs[i];
             }
-
-            items.ForEach(t => PrintColorMsg(ConsoleColor.Red, "item", $"{t.Ign} -> '{t.Buyout}'"));
-
-            // todo: convert to domain object
-            /*
-            var domainItems = new Domain.Item[items.Length];
-            DispatchItem?.Invoke(domainItems);
-
-            throw new NotImplementedException();
-            */
+            
+            items.ForEach(t => DispatchNewItem?.Invoke(Converter.ConvertPt(t)));
         }
 
         protected override void SocketOnMessage(object sender, MessageEventArgs e) {
@@ -100,7 +89,7 @@ namespace Service.PoeTrade {
                     break;
 
                 case "del":
-                    DispatchDelete(msg.Value);
+                    DispatchDelItem?.Invoke(msg.Value);
                     break;
 
                 default:

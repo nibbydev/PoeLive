@@ -4,18 +4,17 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
-using Domain;
 using Domain.PathOfExile;
 using WebSocketSharp;
 
-namespace Service.PathOfExile {
-    public sealed class Connection : BaseConnection {
+namespace Service.Connection {
+    public sealed class PoeConnection : BaseConnection {
         public static readonly Regex UrlRegex =
             new Regex(@"^https?:\/\/www\.pathofexile\.com\/trade\/search\/([a-zA-Z0-9]+)\/([a-zA-Z0-9]+)$");
 
         private string _league;
 
-        public Connection(string url) : base(ConnectionType.PathOfExile, url) {
+        public PoeConnection(string url) : base(ConnectionType.PathOfExile, url) {
             WsUrl = BuildWebSocketUrl(url);
             CreateSocket();
         }
@@ -49,16 +48,7 @@ namespace Service.PathOfExile {
                 var jsonString = await AsyncRequest(concatIds);
                 var data = jsonString?.ParseJSON<ApiDeserializer>();
 
-                data?.result.ForEach(t => PrintColorMsg(ConsoleColor.Red, "item",
-                    $"{t.listing.account?.lastCharacterName} -> '{t.listing.price?.amount} {t.listing.price?.currency}'"));
-
-                // todo: convert to domain object
-                /*
-                var domainItems = new Domain.Item[data?.result.Length ?? 0];
-                DispatchItem?.Invoke(domainItems);
-
-                throw new NotImplementedException();
-                */
+                data?.result.ForEach(t => DispatchNewItem?.Invoke(Converter.ConvertPoe(t)));
             }
         }
 
@@ -66,7 +56,7 @@ namespace Service.PathOfExile {
             var msg = e.Data.ParseJSON<WsDeserializer>();
 
             if (!msg.@new.IsNullOrEmpty()) {
-                msg.@new.ForEach(t => RemoveActive?.Invoke(t));
+                msg.@new.ForEach(t => DispatchDelItem?.Invoke(t));
                 DispatchSearchAsync(msg.@new);
             }
         }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CsQuery;
 using CsQuery.ExtensionMethods.Internal;
-using Domain.PoeTrade;
+using Domain.PoeTrade.ApiDeserializer;
 
-namespace Service.PoeTrade {
+namespace Service {
     public static class HtmlParser {
         private static readonly Regex IntRegex = new Regex(@"\d+");
 
