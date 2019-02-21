@@ -41,6 +41,7 @@ namespace Service.Connection {
                 throw new Exception("Websocket has not been created");
             }
 
+            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Connecting");
             WebSocket.Connect();
         }
 
@@ -54,8 +55,6 @@ namespace Service.Connection {
                 throw new ArgumentException("Web socket url has not been created");
             }
 
-            DeleteSocket();
-
             WebSocket = new WebSocket(WsUrl);
             WebSocket.OnMessage += SocketOnMessage;
             WebSocket.OnOpen += SocketOnOpen;
@@ -67,11 +66,9 @@ namespace Service.Connection {
                 PrintColorMsg(ConsoleColor.Magenta, "Connection", "Using POESESSID");
                 WebSocket.SetCookie(new Cookie("POESESSID", PoeSessionId));
             }
-
-            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket created");
         }
 
-        public void DeleteSocket() {
+        private void DeleteSocket() {
             if (WebSocket == null) {
                 return;
             }
@@ -83,8 +80,6 @@ namespace Service.Connection {
 
             WebSocket.Close();
             WebSocket = null;
-
-            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket deleted");
         }
 
         public bool IsConnected() {
@@ -93,14 +88,18 @@ namespace Service.Connection {
 
 
         protected virtual void SocketOnOpen(object sender, EventArgs e) {
-            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket connected");
+            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket opened");
         }
 
         private void SocketOnClose(object sender, EventArgs e) {
-            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket disconnected");
-
+            PrintColorMsg(ConsoleColor.Magenta, "Connection", "Socket closed/error");
+            DeleteSocket();
+            
             // Wait a bit before recreating
-            Task.Delay(1000).ContinueWith(t => CreateSocket());
+            Task.Delay(1000).ContinueWith(task => {
+                CreateSocket();
+                Connect();
+            });
         }
 
 
