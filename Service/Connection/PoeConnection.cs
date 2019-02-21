@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
 using Domain.PathOfExile;
+using Newtonsoft.Json;
 using WebSocketSharp;
 
 namespace Service.Connection {
@@ -44,11 +45,20 @@ namespace Service.Connection {
 
                 PrintColorMsg(ConsoleColor.Blue, "New", concatIds);
 
+                if (string.IsNullOrWhiteSpace(concatIds) || string.IsNullOrWhiteSpace(concatIds)) {
+                    continue;
+                }
+
                 // Make POST request
                 var jsonString = await AsyncRequest(concatIds);
-                var data = jsonString?.ParseJSON<ApiDeserializer>();
 
-                data?.result.ForEach(t => DispatchNewItem?.Invoke(Converter.ConvertPoe(t)));
+                try {
+                    var data = jsonString?.ParseJSON<ApiDeserializer>();
+                    data?.result.ForEach(t => DispatchNewItem?.Invoke(Converter.ConvertPoe(t)));
+                } catch (JsonSerializationException e) {
+                    Console.WriteLine(jsonString);
+                    Console.WriteLine(e);
+                }
             }
         }
 

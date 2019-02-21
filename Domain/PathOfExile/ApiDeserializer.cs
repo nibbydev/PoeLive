@@ -97,7 +97,7 @@ namespace Domain.PathOfExile {
         public bool? es_aug { get; set; }
         public bool? ar_aug { get; set; }
 
-        public ExtendMod[] mods { get; set; }
+        public ExtendMod mods { get; set; }
         public object hashes;
     }
 
@@ -114,7 +114,7 @@ namespace Domain.PathOfExile {
 
     public class ExtendModMagnitude {
         public string hash { get; set; }
-        public int min { get; set; }
-        public int max { get; set; }
+        public double min { get; set; }
+        public double max { get; set; }
     }
 }
