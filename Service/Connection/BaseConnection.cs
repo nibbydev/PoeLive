@@ -13,9 +13,10 @@ namespace Service.Connection {
 
         protected WebSocket WebSocket;
         protected string WsUrl, Identifier;
-        protected readonly ConnectionType Type;
-        public static string PoeSessionId { private get; set; }
-        public static bool Verbose { private get; set; }
+        public readonly ConnectionInfo Info;
+        public static string PoeSessionId { get; set; }
+        public static bool Verbose { private get; set; } = true;
+        private bool _run;
 
         static BaseConnection() {
             WebClient.DefaultRequestHeaders.Add("User-Agent", "PoeLive 1.0");
@@ -23,30 +24,28 @@ namespace Service.Connection {
             WebClient.Timeout = TimeSpan.FromMilliseconds(2000);
         }
 
-        protected BaseConnection(ConnectionType type, string url) {
-            if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url)) {
+        protected BaseConnection(ConnectionInfo info) {
+            if (string.IsNullOrEmpty(info.Url) || string.IsNullOrWhiteSpace(info.Url)) {
                 throw new ArgumentException("Empty or null search url passed");
             }
 
-            Type = type;
+            Info = info;
 
-            if (ConnectionType.PathOfExile.Equals(type) && PoeSessionId.IsNullOrEmpty()) {
+            /*if (ConnectionType.PathOfExile.Equals(info.Type) && PoeSessionId.IsNullOrEmpty()) {
                 throw new ArgumentException("Cannot connect to pathofexile.com due to missing POESESSID cookie");
-            }
+            }*/
         }
 
 
-        public void Connect() {
+        public virtual void Connect() {
             if (WebSocket == null) {
                 throw new Exception("Websocket has not been created");
             }
 
+            _run = true;
+
             PrintColorMsg(ConsoleColor.Magenta, "Connection", "Connecting");
             WebSocket.Connect();
-        }
-
-        public void Disconnect() {
-            DeleteSocket();
         }
 
 
@@ -60,15 +59,16 @@ namespace Service.Connection {
             WebSocket.OnOpen += SocketOnOpen;
             WebSocket.OnClose += SocketOnClose;
             WebSocket.OnError += SocketOnClose;
-
+            
             // If url points to pathofexile.com, use provided POESESSID cookie
-            if (Type.Equals(ConnectionType.PathOfExile)) {
-                PrintColorMsg(ConsoleColor.Magenta, "Connection", "Using POESESSID");
+            if (ConnectionType.PathOfExile.Equals(Info.Type)) {
                 WebSocket.SetCookie(new Cookie("POESESSID", PoeSessionId));
             }
         }
 
-        private void DeleteSocket() {
+        public void DeleteSocket() {
+            _run = false;
+            
             if (WebSocket == null) {
                 return;
             }
@@ -97,6 +97,10 @@ namespace Service.Connection {
             
             // Wait a bit before recreating
             Task.Delay(1000).ContinueWith(task => {
+                if (!_run) {
+                    return;
+                }
+                
                 CreateSocket();
                 Connect();
             });
@@ -113,10 +117,9 @@ namespace Service.Connection {
 
         protected abstract void SocketOnMessage(object sender, MessageEventArgs e);
 
-        public virtual string BuildWebSocketUrl(string url) {
+        public virtual string BuildWebSocketUrl() {
             throw new NotImplementedException();
         }
-
 
         protected void PrintColorMsg(ConsoleColor color, string a, string b = null) {
             if (!Verbose) {
@@ -129,7 +132,7 @@ namespace Service.Connection {
 
             Console.Write("[");
             Console.ForegroundColor = color;
-            Console.Write(Type);
+            Console.Write(Info.Type);
             Console.ResetColor();
             Console.Write("][");
             Console.ForegroundColor = color;

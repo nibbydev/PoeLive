@@ -1,4 +1,4 @@
-namespace Service.Connection {
+namespace Domain {
     public enum ConnectionType {
         PoeTrade,
         PathOfExile,

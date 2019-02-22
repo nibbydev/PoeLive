@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
+using Domain;
 using Domain.PoeTrade;
 using Domain.PoeTrade.ApiDeserializer;
 using WebSocketSharp;
@@ -13,19 +14,19 @@ namespace Service.Connection {
         public static readonly Regex UrlRegex = new Regex(@"^https?:\/\/poe\.trade\/search\/([a-zA-Z]+)\/?$");
         private int _lastId;
 
-        public PtConnection(string url) : base(ConnectionType.PoeTrade, url) {
-            WsUrl = BuildWebSocketUrl(url);
-
-            // Get initial id state
-            _lastId = AsyncRequest("-1").Result.ParseJSON<ApiDeserializer>().NewId;
-            PrintColorMsg(ConsoleColor.Magenta, "Initial id", _lastId.ToString());
-
-            CreateSocket();
+        public PtConnection(ConnectionInfo info) : base(info) {
+            WsUrl = BuildWebSocketUrl();
         }
 
-        public override string BuildWebSocketUrl(string url) {
+        public override void Connect() {
+            CreateSocket();
+            _lastId = AsyncRequest("-1").Result.ParseJSON<ApiDeserializer>().NewId;
+            base.Connect();
+        }
+
+        public override string BuildWebSocketUrl() {
             // http://poe.trade/search/omisokonausiha
-            var match = UrlRegex.Match(url);
+            var match = UrlRegex.Match(Info.Url);
 
             if (!match.Success || match.Groups.Count != 2) {
                 throw new ArgumentException("Could not parse url");

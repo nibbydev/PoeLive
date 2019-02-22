@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsQuery.ExtensionMethods;
 using CsQuery.ExtensionMethods.Internal;
+using Domain;
 using Domain.PathOfExile;
 using Newtonsoft.Json;
 using WebSocketSharp;
@@ -15,14 +16,18 @@ namespace Service.Connection {
 
         private string _league;
 
-        public PoeConnection(string url) : base(ConnectionType.PathOfExile, url) {
-            WsUrl = BuildWebSocketUrl(url);
+        public PoeConnection(ConnectionInfo info) : base(info) {
+            WsUrl = BuildWebSocketUrl();
+        }
+        
+        public override void Connect() {
             CreateSocket();
+            base.Connect();
         }
 
-        public override string BuildWebSocketUrl(string url) {
+        public override string BuildWebSocketUrl() {
             // https://www.pathofexile.com/trade/search/Betrayal/xX7kHP
-            var match = UrlRegex.Match(url);
+            var match = UrlRegex.Match(Info.Url);
 
             if (!match.Success || match.Groups.Count != 3) {
                 throw new ArgumentException("Could not parse url");
