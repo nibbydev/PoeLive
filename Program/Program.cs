@@ -10,6 +10,7 @@ namespace Program {
         static Program() {
             BaseConnection.DispatchNewItem = DispatchNewItem;
             BaseConnection.DispatchDelItem = DispatchDelItem;
+            PaConnection.HashApiUrl = "http://127.0.0.1:3001/?obj_to_hash=";
         }
 
         private static void Main(string[] args) {

@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="CsQuery.Core" Version="2.0.1" />
+      <PackageReference Include="LZStringCSharp" Version="1.3.0.26157" />
       <PackageReference Include="WebSocketSharp-netstandard" Version="1.0.1" />
     </ItemGroup>
 

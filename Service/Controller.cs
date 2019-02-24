@@ -28,6 +28,9 @@ namespace Service {
                     case ConnectionType.PathOfExile:
                         Connections.Add(new PoeConnection(connection));
                         break;
+                    case ConnectionType.PoeApp:
+                        Connections.Add(new PaConnection(connection));
+                        break;
                 }
             }
         }

@@ -30,10 +30,6 @@ namespace Service.Connection {
             }
 
             Info = info;
-
-            /*if (ConnectionType.PathOfExile.Equals(info.Type) && PoeSessionId.IsNullOrEmpty()) {
-                throw new ArgumentException("Cannot connect to pathofexile.com due to missing POESESSID cookie");
-            }*/
         }
 
 
